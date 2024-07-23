@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор Психоматрицы</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            width: 50%;
+            margin: 0 auto;
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        td, th {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: center;
+        }
+        .result {
+            text-align: left;
+            margin-top: 20px;
+            display: none;
+        }
+    </style>
+    <script>
+        function populateYears() {
+            const currentYear = new Date().getFullYear();
+            const startYear = currentYear - 100;
+            const yearSelect = document.getElementById("year");
+            for (let year = startYear; year <= currentYear; year++) {
+                let option = document.createElement("option");
+                option.value = year;
+                option.text = year;
+                yearSelect.appendChild(option);
+            }
+            yearSelect.value = 2000; // Предложить 2000 год по умолчанию
+        }
+
+        function populateDays() {
+            const daySelect = document.getElementById("day");
+            for (let day = 1; day <= 31; day++) {
+                let option = document.createElement("option");
+                option.value = day;
+                option.text = day;
+                daySelect.appendChild(option);
+            }
+        }
+
+        function populateMonths() {
+            const monthSelect = document.getElementById("month");
+            for (let month = 1; month <= 12; month++) {
+                let option = document.createElement("option");
+                option.value = month;
+                option.text = month;
+                monthSelect.appendChild(option);
+            }
+        }
+
+        function isValidDate(day, month, year) {
+            const date = new Date(year, month - 1, day);
+            return date.getDate() == day && date.getMonth() == month - 1;
+        }
+
+        function calculateMatrix() {
+            const day = parseInt(document.getElementById("day").value, 10);
+            const month = parseInt(document.getElementById("month").value, 10);
+            const year = parseInt(document.getElementById("year").value, 10);
+
+            if (!day || !month || !year || !isValidDate(day, month, year)) {
+                alert("Пожалуйста, введите корректную дату.");
+                return;
+            }
+
+            const birthdateFormatted = `${day}.${month}.${year}`;
+            const birthdate = `${year}-${month}-${day}`;
+            const numbers = birthdate.replace(/-/g, '').split('').map(Number);
+
+            const getSingleDigit = (num) => {
+                while (num > 9) {
+                    num = num.toString().split('').reduce((a, b) => a + Number(b), 0);
+                }
+                return num;
+            };
+
+            const destinyNumber = getSingleDigit(numbers.reduce((a, b) => a + b, 0));
+
+            const sum1 = numbers.reduce((a, b) => a + b, 0);
+            const sum1Digits = sum1.toString().split('').map(Number);
+            const sum2 = sum1Digits.reduce((a, b) => a + b, 0);
+            const sum3 = sum1 - 2 * numbers[0];
+            const sum3Digits = sum3.toString().split('').map(Number);
+            const sum4 = sum3Digits.reduce((a, b) => a + b, 0);
+
+            const additionalNumbers = [sum1, sum2, sum3, sum4];
+
+            const matrix = {
+                'Характер': '',
+                'Здоровье': '',
+                'Удача': '',
+                'Целеустремленность': '',
+                'Энергия': '',
+                'Логика': '',
+                'Долг': '',
+                'Семья': '',
+                'Интерес': '',
+                'Труд': '',
+                'Память': '',
+                'Привычки': '',
+                'Быт': '',
+                'Темперамент': ''
+            };
+
+            const allNumbers = [...numbers, ...sum1Digits, ...sum3Digits];
+            allNumbers.forEach(num => {
+                if (num === 1) matrix['Характер'] += '1';
+                if (num === 2) matrix['Энергия'] += '2';
+                if (num === 3) matrix['Интерес'] += '3';
+                if (num === 4) matrix['Здоровье'] += '4';
+                if (num === 5) matrix['Логика'] += '5';
+                if (num === 6) matrix['Труд'] += '6';
+                if (num === 7) matrix['Удача'] += '7';
+                if (num === 8) matrix['Долг'] += '8';
+                if (num === 9) matrix['Память'] += '9';
+            });
+
+            // Характер из единиц
+            const characterCount = birthdate.replace(/[^1]/g, "").length + additionalNumbers.join("").replace(/[^1]/g, "").length;
+            const character = '1'.repeat(characterCount);
+
+            // Энергия из двоек
+            const energyCount = birthdate.replace(/[^2]/g, "").length + additionalNumbers.join("").replace(/[^2]/g, "").length;
+            const energy = '2'.repeat(energyCount);
+
+            // Логика из пятёрок
+            const logicCount = birthdate.replace(/[^5]/g, "").length + additionalNumbers.join("").replace(/[^5]/g, "").length;
+            const logic = '5'.repeat(logicCount);
+
+            // Долг из восьмерок
+            const debtCount = birthdate.replace(/[^8]/g, "").length + additionalNumbers.join("").replace(/[^8]/g, "").length;
+            const debt = '8'.repeat(debtCount);
+
+            // Целеустремленность
+            const purposefulness = character.length + matrix['Здоровье'].length + matrix['Удача'].length;
+
+            // Семья: сумма количеств цифр в полях "Энергия", "Логика" и "Долг"
+            const family = energy.length + logic.length + debt.length;
+
+            // Привычки
+            const habits = matrix['Интерес'].length + matrix['Труд'].length + matrix['Память'].length;
+
+            // Темперамент
+            const temperament = matrix['Интерес'].length + matrix['Логика'].length + matrix['Удача'].length;
+
+            // Быт
+            const household = matrix['Здоровье'].length + matrix['Логика'].length + matrix['Труд'].length;
+
+            document.getElementById("birthdate-display").innerText = birthdateFormatted;
+            document.getElementById("additional-numbers").innerText = additionalNumbers.join(', ');
+            document.getElementById("destiny-number").innerText = destinyNumber;
+            document.getElementById("характер").innerText = ` ${character || 'Пусто'}`;
+            document.getElementById("здоровье").innerText = ` ${matrix['Здоровье'] || 'Пусто'}`;
+            document.getElementById("удача").innerText = ` ${matrix['Удача'] || 'Пусто'}`;
+            document.getElementById("целеустремленность").innerText = ` ${purposefulness}`;
+            document.getElementById("энергия").innerText = ` ${energy || 'Пусто'}`;
+            document.getElementById("логика").innerText = ` ${logic || 'Пусто'}`;
+            document.getElementById("долг").innerText = ` ${debt || 'Пусто'}`;
+            document.getElementById("семья").innerText = ` ${family}`;
+            document.getElementById("интерес").innerText = ` ${matrix['Интерес'] || 'Пусто'}`;
+            document.getElementById("труд").innerText = ` ${matrix['Труд'] || 'Пусто'}`;
+            document.getElementById("память").innerText = ` ${matrix['Память'] || 'Пусто'}`;
+            document.getElementById("привычки").innerText = ` ${habits}`;
+            document.getElementById("быт").innerText = ` ${household}`;
+            document.getElementById("темперамент").innerText = ` ${temperament}`;
+
+            document.querySelector('.result').style.display = 'block';
+        }
+
+        window.onload = function() {
+            populateYears();
+            populateDays();
+            populateMonths();
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Калькулятор Психоматрицы</h1>
+        <label for="day">День:</label>
+        <select id="day"></select>
+        <label for="month">Месяц:</label>
+        <select id="month"></select>
+        <label for="year">Год:</label>
+        <select id="year"></select>
+        <button onclick="calculateMatrix()">Рассчитать</button>
+        <div class="result">
+            <table border="1">
+                <tr>
+                    <td colspan="3">Дата: <span id="birthdate-display"></span></td>
+                    <td rowspan="3">Темперамент: <span id="темперамент"></span></td>
+                </tr>
+                <tr>
+                    <td colspan="3">Дополнительные числа: <span id="additional-numbers"></span></td>
+                </tr>
+                <tr>
+                    <td colspan="3">Число Судьбы: <span id="destiny-number"></span></td>
+                </tr>
+                <tr>
+                    <td>Характер:</td>
+                    <td>Здоровье:</td>
+                    <td>Удача:</td>
+                    <td>Целеустремленность:</td>
+                </tr>
+                <tr>
+                    <td id="характер"></td>
+                    <td id="здоровье"></td>
+                    <td id="удача"></td>
+                    <td id="целеустремленность"></td>
+                </tr>
+                <tr>
+                    <td>Энергия:</td>
+                    <td>Логика:</td>
+                    <td>Долг:</td>
+                    <td>Семья:</td>
+                </tr>
+                <tr>
+                    <td id="энергия"></td>
+                    <td id="логика"></td>
+                    <td id="долг"></td>
+                    <td id="семья"></td>
+                </tr>
+                <tr>
+                    <td>Интерес:</td>
+                    <td>Труд:</td>
+                    <td>Память:</td>
+                    <td>Привычки:</td>
+                </tr>
+                <tr>
+                    <td id="интерес"></td>
+                    <td id="труд"></td>
+                    <td id="память"></td>
+                    <td id="привычки"></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>Быт:</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                    <tr>
+                    <td></td>
+                    <td id="быт"></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
