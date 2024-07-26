@@ -89,8 +89,6 @@
                 return num;
             };
 
-            const destinyNumber = getSingleDigit(numbers.reduce((a, b) => a + b, 0));
-
             const sum1 = numbers.reduce((a, b) => a + b, 0);
             const sum1Digits = sum1.toString().split('').map(Number);
             const sum2 = sum1Digits.reduce((a, b) => a + b, 0);
@@ -99,6 +97,13 @@
             const sum4 = sum3Digits.reduce((a, b) => a + b, 0);
 
             const additionalNumbers = [sum1, sum2, sum3, sum4];
+
+            let destinyNumber;
+            if (sum2 === 11) {
+                destinyNumber = 11;
+            } else {
+                destinyNumber = getSingleDigit(numbers.reduce((a, b) => a + b, 0));
+            }
 
             const matrix = {
                 'Характер': '',
@@ -146,6 +151,10 @@
             const debtCount = birthdate.replace(/[^8]/g, "").length + additionalNumbers.join("").replace(/[^8]/g, "").length;
             const debt = '8'.repeat(debtCount);
 
+            // Память из девяток
+            const memoryCount = birthdate.replace(/[^9]/g, "").length + additionalNumbers.join("").replace(/[^9]/g, "").length;
+            const memory = '9'.repeat(memoryCount);
+
             // Целеустремленность
             const purposefulness = character.length + matrix['Здоровье'].length + matrix['Удача'].length;
 
@@ -153,7 +162,7 @@
             const family = energy.length + logic.length + debt.length;
 
             // Привычки
-            const habits = matrix['Интерес'].length + matrix['Труд'].length + matrix['Память'].length;
+            const habits = matrix['Интерес'].length + matrix['Труд'].length + memory.length;
 
             // Темперамент
             const temperament = matrix['Интерес'].length + matrix['Логика'].length + matrix['Удача'].length;
@@ -164,20 +173,20 @@
             document.getElementById("birthdate-display").innerText = birthdateFormatted;
             document.getElementById("additional-numbers").innerText = additionalNumbers.join(', ');
             document.getElementById("destiny-number").innerText = destinyNumber;
-            document.getElementById("характер").innerText = ` ${character || 'Пусто'}`;
-            document.getElementById("здоровье").innerText = ` ${matrix['Здоровье'] || 'Пусто'}`;
-            document.getElementById("удача").innerText = ` ${matrix['Удача'] || 'Пусто'}`;
-            document.getElementById("целеустремленность").innerText = ` ${purposefulness}`;
-            document.getElementById("энергия").innerText = ` ${energy || 'Пусто'}`;
-            document.getElementById("логика").innerText = ` ${logic || 'Пусто'}`;
-            document.getElementById("долг").innerText = ` ${debt || 'Пусто'}`;
-            document.getElementById("семья").innerText = ` ${family}`;
-            document.getElementById("интерес").innerText = ` ${matrix['Интерес'] || 'Пусто'}`;
-            document.getElementById("труд").innerText = ` ${matrix['Труд'] || 'Пусто'}`;
-            document.getElementById("память").innerText = ` ${matrix['Память'] || 'Пусто'}`;
-            document.getElementById("привычки").innerText = ` ${habits}`;
-            document.getElementById("быт").innerText = ` ${household}`;
-            document.getElementById("темперамент").innerText = ` ${temperament}`;
+            document.getElementById("характер").innerText = character || 'Пусто';
+            document.getElementById("здоровье").innerText = matrix['Здоровье'] || 'Пусто';
+            document.getElementById("удача").innerText = matrix['Удача'] || 'Пусто';
+            document.getElementById("целеустремленность").innerText = purposefulness;
+            document.getElementById("энергия").innerText = energy || 'Пусто';
+            document.getElementById("логика").innerText = logic || 'Пусто';
+            document.getElementById("долг").innerText = debt || 'Пусто';
+            document.getElementById("семья").innerText = family;
+            document.getElementById("интерес").innerText = matrix['Интерес'] || 'Пусто';
+            document.getElementById("труд").innerText = matrix['Труд'] || 'Пусто';
+            document.getElementById("память").innerText = memory || 'Пусто';
+            document.getElementById("привычки").innerText = habits;
+            document.getElementById("быт").innerText = household;
+            document.getElementById("темперамент").innerText = temperament;
 
             document.querySelector('.result').style.display = 'block';
         }
@@ -253,7 +262,7 @@
                     <td></td>
                     <td></td>
                 </tr>
-                    <tr>
+                <tr>
                     <td></td>
                     <td id="быт"></td>
                     <td></td>
